@@ -4,7 +4,7 @@ import { defineStore } from 'pinia';
 import { useLoading } from '@sa/hooks';
 import { SetupStoreId } from '@/enum';
 import { useRouterPush } from '@/hooks/common/router';
-import { fetchGetUserInfo, fetchLogin } from '@/service/api';
+import { fetchLogin } from '@/service/api';
 import { localStg } from '@/utils/storage';
 import { $t } from '@/locales';
 import { useRouteStore } from '../route';
@@ -21,10 +21,11 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   const token = ref(getToken());
 
   const userInfo: Api.Auth.UserInfo = reactive({
-    userId: '',
-    userName: '',
+    id: 0,
+    username: '',
+    nickname: '',
     roles: [],
-    buttons: []
+    permissions: []
   });
 
   /** is super role in static route */
@@ -73,7 +74,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
 
         window.$notification?.success({
           message: $t('page.login.common.loginSuccess'),
-          description: $t('page.login.common.welcomeBack', { userName: userInfo.userName })
+          description: $t('page.login.common.welcomeBack', { userName: userInfo.username })
         });
       }
     } else {
@@ -83,34 +84,21 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     endLoading();
   }
 
-  async function loginByToken(loginToken: Api.Auth.LoginToken) {
-    // 1. stored in the localStorage, the later requests need it in headers
-    localStg.set('token', loginToken.token);
-    localStg.set('refreshToken', loginToken.refreshToken);
+  async function loginByToken(loginData: Api.Auth.LoginToken & { userInfo: Api.Auth.UserInfo }) {
+    // 1. 存 token 到 localStorage（request 拦截器从这里读）
+    localStg.set('token', loginData.token);
 
-    // 2. get user info
-    const pass = await getUserInfo();
+    // 2. 直接用登录响应中的 userInfo 填充（后端已在 LoginVO 中返回，无需再调 getUserInfo）
+    Object.assign(userInfo, loginData.userInfo);
+    token.value = loginData.token;
 
-    if (pass) {
-      token.value = loginToken.token;
-
-      return true;
-    }
-
-    return false;
+    return true;
   }
 
   async function getUserInfo() {
-    const { data: info, error } = await fetchGetUserInfo();
-
-    if (!error) {
-      // update store
-      Object.assign(userInfo, info);
-
-      return true;
-    }
-
-    return false;
+    // 后端在登录时已返回 userInfo，无需额外请求
+    // 保留此函数是为了维持 initUserInfo 调用链的兼容
+    return true;
   }
 
   async function initUserInfo() {

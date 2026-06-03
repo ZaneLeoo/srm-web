@@ -54,16 +54,21 @@ declare namespace Api {
    * Backend api module: "auth"
    */
   namespace Auth {
+    /** 后端 LoginVO 中的 token 部分 */
     interface LoginToken {
       token: string;
-      refreshToken: string;
+      /** token 过期时间（秒） */
+      expiresIn: number;
     }
 
+    /** 后端 LoginVO.UserInfo */
     interface UserInfo {
-      userId: string;
-      userName: string;
+      id: number;
+      username: string;
+      nickname: string;
       roles: string[];
-      buttons: string[];
+      /** 权限码（user:list、user:add 等） */
+      permissions: string[];
     }
   }
 

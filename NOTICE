@@ -1,0 +1,20 @@
+# Notice
+
+本项目 (`srm-web`) 是基于 [SoybeanAdmin](https://github.com/soybeanjs/soybean-admin-antd)
+进行二次开发与精简的供应商关系管理（SRM）平台前端代码。
+
+## 主要变更
+
+- 移除所有示例/演示页面（about / function / home / multi-menu / user-center / iframe-page）
+- 删除 `document` 文档链接路由组
+- 清理孤儿 i18n 键
+- 配置 `VITE_APP_TITLE` / `VITE_ROUTE_HOME` / `VITE_SERVICE_BASE_URL` 指向 SRM Platform 后端
+- 头像菜单 `user-center` 跳转改为 `manage_user`
+
+## 上游项目致谢
+
+- 原项目：[soybeanjs/soybean-admin-antd](https://github.com/soybeanjs/soybean-admin-antd)
+- 原作者：Soybean (https://github.com/soybeanjs)
+- 协议：MIT License
+
+本项目在 MIT 协议下分发，详见 `LICENSE` 文件。

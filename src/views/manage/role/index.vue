@@ -1,9 +1,9 @@
 <script setup lang="tsx">
 import { Button, Popconfirm, Tag } from 'ant-design-vue';
-import { fetchGetRoleList } from '@/service/api';
+import { enableStatusRecord } from '@/constants/business';
+import { fetchDeleteRole, fetchGetRoleList } from '@/service/api';
 import { useTable, useTableOperate, useTableScroll } from '@/hooks/common/table';
 import { $t } from '@/locales';
-import { enableStatusRecord } from '@/constants/business';
 import RoleOperateDrawer from './modules/role-operate-drawer.vue';
 import RoleSearch from './modules/role-search.vue';
 
@@ -25,8 +25,8 @@ const {
     current: 1,
     size: 10,
     status: undefined,
-    roleName: undefined,
-    roleCode: undefined
+    name: undefined,
+    code: undefined
   },
   columns: () => [
     {
@@ -37,22 +37,22 @@ const {
       align: 'center'
     },
     {
-      key: 'roleName',
-      dataIndex: 'roleName',
+      key: 'name',
+      dataIndex: 'name',
       title: $t('page.manage.role.roleName'),
       align: 'center',
       minWidth: 120
     },
     {
-      key: 'roleCode',
-      dataIndex: 'roleCode',
+      key: 'code',
+      dataIndex: 'code',
       title: $t('page.manage.role.roleCode'),
       align: 'center',
       minWidth: 120
     },
     {
-      key: 'roleDesc',
-      dataIndex: 'roleDesc',
+      key: 'description',
+      dataIndex: 'description',
       title: $t('page.manage.role.roleDesc'),
       minWidth: 120
     },
@@ -63,13 +63,13 @@ const {
       align: 'center',
       width: 100,
       customRender: ({ record }) => {
-        if (record.status === null) {
+        if (record.status === null || record.status === undefined) {
           return null;
         }
 
-        const tagMap: Record<Api.Common.EnableStatus, string> = {
+        const tagMap: Record<number, string> = {
           1: 'success',
-          2: 'warning'
+          0: 'warning'
         };
 
         const label = $t(enableStatusRecord[record.status]);
@@ -108,19 +108,15 @@ const {
   rowSelection,
   onBatchDeleted,
   onDeleted
-  // closeDrawer
 } = useTableOperate(data, getData);
 
 async function handleBatchDelete() {
   // request
-
   onBatchDeleted();
 }
 
-function handleDelete(id: number) {
-  // request
-  console.log(id);
-
+async function handleDelete(id: number) {
+  await fetchDeleteRole(id);
   onDeleted();
 }
 
@@ -136,7 +132,7 @@ function edit(id: number) {
       :title="$t('page.manage.role.title')"
       :bordered="false"
       :body-style="{ flex: 1, overflow: 'hidden' }"
-      class="flex-col-stretch sm:flex-1-hidden card-wrapper"
+      class="flex-col-stretch card-wrapper sm:flex-1-hidden"
     >
       <template #extra>
         <TableHeaderOperation

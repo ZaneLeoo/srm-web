@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { enableStatusOptions } from '@/constants/business';
+import { fetchCreateUser, fetchGetAllRoles, fetchUpdateUser } from '@/service/api';
 import { useAntdForm, useFormRules } from '@/hooks/common/form';
-import { fetchGetAllRoles } from '@/service/api';
 import { $t } from '@/locales';
-import { enableStatusOptions, userGenderOptions } from '@/constants/business';
 
 defineOptions({
   name: 'UserOperateDrawer'
@@ -39,53 +39,43 @@ const title = computed(() => {
   return titles[props.operateType];
 });
 
-type Model = Pick<
-  Api.SystemManage.User,
-  'userName' | 'userGender' | 'nickName' | 'userPhone' | 'userEmail' | 'userRoles' | 'status'
->;
+type Model = Pick<Api.SystemManage.User, 'username' | 'nickname' | 'phone' | 'email' | 'roleIds' | 'status'> & {
+  password: string;
+};
 
 const model = ref(createDefaultModel());
 
 function createDefaultModel(): Model {
   return {
-    userName: '',
-    userGender: '1',
-    nickName: '',
-    userPhone: '',
-    userEmail: '',
-    userRoles: [],
-    status: '1'
+    username: '',
+    password: '',
+    nickname: '',
+    phone: '',
+    email: '',
+    roleIds: [],
+    status: 1
   };
 }
 
-type RuleKey = Extract<keyof Model, 'userName' | 'status'>;
+type RuleKey = Extract<keyof Model, 'username' | 'password' | 'status'>;
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  userName: defaultRequiredRule,
+  username: defaultRequiredRule,
+  password: defaultRequiredRule,
   status: defaultRequiredRule
 };
 
 /** the enabled role options */
-const roleOptions = ref<CommonType.Option<string>[]>([]);
+const roleOptions = ref<CommonType.Option<number>[]>([]);
 
 async function getRoleOptions() {
   const { error, data } = await fetchGetAllRoles();
 
   if (!error) {
-    const options = data.map(item => ({
-      label: item.roleName,
-      value: item.roleCode
+    roleOptions.value = data.map((item: { id: number; name: string }) => ({
+      label: item.name,
+      value: item.id
     }));
-
-    // the mock data does not have the roleCode, so fill it
-    // if the real request, remove the following code
-    const userRoleOptions = model.value.userRoles.map(item => ({
-      label: item,
-      value: item
-    }));
-    // end
-
-    roleOptions.value = [...userRoleOptions, ...options];
   }
 }
 
@@ -103,7 +93,15 @@ function closeDrawer() {
 
 async function handleSubmit() {
   await validate();
-  // request
+
+  const { password, ...userData } = model.value;
+
+  if (props.operateType === 'add') {
+    await fetchCreateUser({ ...userData, password });
+  } else if (props.operateType === 'edit' && props.rowData) {
+    await fetchUpdateUser(props.rowData.id, userData);
+  }
+
   window.$message?.success($t('common.updateSuccess'));
   closeDrawer();
   emit('submitted');
@@ -121,24 +119,20 @@ watch(visible, () => {
 <template>
   <ADrawer v-model:open="visible" :title="title" :width="360">
     <AForm ref="formRef" layout="vertical" :model="model" :rules="rules">
-      <AFormItem :label="$t('page.manage.user.userName')" name="userName">
-        <AInput v-model:value="model.userName" :placeholder="$t('page.manage.user.form.userName')" />
+      <AFormItem :label="$t('page.manage.user.userName')" name="username">
+        <AInput v-model:value="model.username" :placeholder="$t('page.manage.user.form.userName')" />
       </AFormItem>
-      <AFormItem :label="$t('page.manage.user.userGender')" name="userGender">
-        <ARadioGroup v-model:value="model.userGender">
-          <ARadio v-for="item in userGenderOptions" :key="item.value" :value="item.value">
-            {{ $t(item.label) }}
-          </ARadio>
-        </ARadioGroup>
+      <AFormItem v-if="operateType === 'add'" :label="$t('page.manage.user.form.password')" name="password">
+        <AInput v-model:value="model.password" type="password" :placeholder="$t('page.manage.user.form.password')" />
       </AFormItem>
-      <AFormItem :label="$t('page.manage.user.nickName')" name="nickName">
-        <AInput v-model:value="model.nickName" :placeholder="$t('page.manage.user.form.nickName')" />
+      <AFormItem :label="$t('page.manage.user.nickName')" name="nickname">
+        <AInput v-model:value="model.nickname" :placeholder="$t('page.manage.user.form.nickName')" />
       </AFormItem>
-      <AFormItem :label="$t('page.manage.user.userPhone')" name="userPhone">
-        <AInput v-model:value="model.userPhone" :placeholder="$t('page.manage.user.form.userPhone')" />
+      <AFormItem :label="$t('page.manage.user.userPhone')" name="phone">
+        <AInput v-model:value="model.phone" :placeholder="$t('page.manage.user.form.userPhone')" />
       </AFormItem>
       <AFormItem :label="$t('page.manage.user.userEmail')" name="email">
-        <AInput v-model:value="model.userEmail" :placeholder="$t('page.manage.user.form.userEmail')" />
+        <AInput v-model:value="model.email" :placeholder="$t('page.manage.user.form.userEmail')" />
       </AFormItem>
       <AFormItem :label="$t('page.manage.user.userStatus')" name="status">
         <ARadioGroup v-model:value="model.status">
@@ -147,9 +141,9 @@ watch(visible, () => {
           </ARadio>
         </ARadioGroup>
       </AFormItem>
-      <AFormItem :label="$t('page.manage.user.userRole')" name="roles">
+      <AFormItem :label="$t('page.manage.user.userRole')" name="roleIds">
         <ASelect
-          v-model:value="model.userRoles"
+          v-model:value="model.roleIds"
           multiple
           :options="roleOptions"
           :placeholder="$t('page.manage.user.form.userRole')"

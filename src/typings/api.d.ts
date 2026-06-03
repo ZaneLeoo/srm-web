@@ -26,25 +26,25 @@ declare namespace Api {
     /**
      * enable status
      *
-     * - "1": enabled
-     * - "2": disabled
+     * - 1: enabled
+     * - 0: disabled
      */
-    type EnableStatus = '1' | '2';
+    type EnableStatus = number;
 
     /** common record */
     type CommonRecord<T = any> = {
       /** record id */
       id: number;
       /** record creator */
-      createBy: string;
+      createBy?: string;
       /** record create time */
-      createTime: string;
+      createTime?: string;
       /** record updater */
-      updateBy: string;
+      updateBy?: string;
       /** record update time */
-      updateTime: string;
+      updateTime?: string;
       /** record status */
-      status: EnableStatus;
+      status?: EnableStatus;
     } & T;
   }
 
@@ -96,133 +96,100 @@ declare namespace Api {
    * backend api module: "systemManage"
    */
   namespace SystemManage {
-    /** role */
-    type Role = Common.CommonRecord<{
-      /** role name */
-      roleName: string;
-      /** role code */
-      roleCode: string;
-      /** role description */
-      roleDesc: string;
-    }>;
+    /** role — 与后端 SysRole 实体对应 */
+    type Role = {
+      id: number;
+      code: string;
+      name: string;
+      description: string;
+      status: number;
+      createdAt: string;
+      updatedAt: string;
+    };
 
     /** role search params */
-    type RoleSearchParams = Partial<
-      Pick<Api.SystemManage.Role, 'roleName' | 'roleCode' | 'status'> & Common.CommonSearchParams
-    >;
+    type RoleSearchParams = Partial<Pick<Role, 'name' | 'code' | 'status'> & Common.CommonSearchParams>;
 
-    /** role list */
+    /** role list（分页） */
     type RoleList = Common.PaginatingQueryRecord<Role>;
 
-    /** all role */
-    type AllRole = Pick<Role, 'id' | 'roleName' | 'roleCode'>;
+    /** all role（用于下拉） */
+    type AllRole = Pick<Role, 'id' | 'name' | 'code'>;
 
-    /**
-     * user gender
-     *
-     * - "1": "male"
-     * - "2": "female"
-     */
-    type UserGender = '1' | '2';
-
-    /** user */
-    type User = Common.CommonRecord<{
-      /** user name */
-      userName: string;
-      /** user gender */
-      userGender: UserGender;
-      /** user nick name */
-      nickName: string;
-      /** user phone */
-      userPhone: string;
-      /** user email */
-      userEmail: string;
-      /** user role code collection */
-      userRoles: string[];
-    }>;
+    /** user — 与后端 SysUser 实体对应 */
+    type User = {
+      id: number;
+      username: string;
+      nickname: string;
+      phone: string;
+      email: string;
+      avatar: string;
+      /** 1 启用，0 禁用 */
+      status: number;
+      createdAt: string;
+      updatedAt: string;
+      /** 角色 ID 列表（用于分配角色） */
+      roleIds?: number[];
+    };
 
     /** user search params */
     type UserSearchParams = Partial<
-      Pick<Api.SystemManage.User, 'userName' | 'userGender' | 'nickName' | 'userPhone' | 'userEmail' | 'status'> &
-        Common.CommonSearchParams
+      Pick<User, 'username' | 'nickname' | 'phone' | 'status'> & Common.CommonSearchParams
     >;
 
-    /** user list */
+    /** user list（分页） */
     type UserList = Common.PaginatingQueryRecord<User>;
 
-    /**
-     * menu type
-     *
-     * - "1": directory
-     * - "2": menu
-     */
-    type MenuType = '1' | '2';
-
-    type MenuButton = {
-      /**
-       * button code
-       *
-       * it can be used to control the button permission
-       */
-      code: string;
-      /** button description */
-      desc: string;
+    /** menu — 与后端 SysMenu 实体对应 */
+    type Menu = {
+      id: number;
+      parentId: number;
+      /** 1 目录 2 菜单 3 按钮 */
+      type: number;
+      name: string;
+      title: string;
+      path: string;
+      component: string;
+      icon: string;
+      permission: string;
+      sort: number;
+      status: number;
+      createdAt: string;
+      updatedAt: string;
+      children?: Menu[];
     };
 
-    /**
-     * icon type
-     *
-     * - "1": iconify icon
-     * - "2": local icon
-     */
-    type IconType = '1' | '2';
-
-    type MenuPropsOfRoute = Pick<
-      import('vue-router').RouteMeta,
-      | 'i18nKey'
-      | 'keepAlive'
-      | 'constant'
-      | 'order'
-      | 'href'
-      | 'hideInMenu'
-      | 'activeMenu'
-      | 'multiTab'
-      | 'fixedIndexInTab'
-      | 'query'
-    >;
-
-    type Menu = Common.CommonRecord<{
-      /** parent menu id */
-      parentId: number;
-      /** menu type */
-      menuType: MenuType;
-      /** menu name */
-      menuName: string;
-      /** route name */
-      routeName: string;
-      /** route path */
-      routePath: string;
-      /** component */
-      component?: string;
-      /** iconify icon name or local icon name */
-      icon: string;
-      /** icon type */
-      iconType: IconType;
-      /** buttons */
-      buttons?: MenuButton[] | null;
-      /** children menu */
-      children?: Menu[];
-    }> &
-      MenuPropsOfRoute;
-
-    /** menu list */
-    type MenuList = Common.PaginatingQueryRecord<Menu>;
-
+    /** 菜单树（含 children 嵌套） */
     type MenuTree = {
       id: number;
-      label: string;
-      pId: number;
+      name: string;
+      title: string;
       children?: MenuTree[];
     };
+
+    /** 菜单列表（扁平） */
+    type MenuList = Menu[];
+  }
+
+  /**
+   * Namespace File
+   *
+   * Backend api module: "files"
+   */
+  namespace File {
+    interface FileRecord {
+      id: number;
+      name: string;
+      originalName: string;
+      url: string;
+      size: number;
+      contentType: string;
+      module: string;
+      bizId: number;
+      uploadedBy: number;
+      createdAt: string;
+    }
+
+    type FileList = Common.PaginatingQueryRecord<FileRecord>;
   }
 }

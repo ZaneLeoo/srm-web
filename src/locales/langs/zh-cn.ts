@@ -332,7 +332,8 @@ const local: App.I18n.Schema = {
           userPhone: '请输入手机号',
           userEmail: '请输入邮箱',
           userStatus: '请选择用户状态',
-          userRole: '请选择用户角色'
+          userRole: '请选择用户角色',
+          password: '密码'
         },
         addUser: '新增用户',
         editUser: '编辑用户',
@@ -370,10 +371,15 @@ const local: App.I18n.Schema = {
         buttonDesc: '按钮描述',
         menuStatus: '菜单状态',
         constant: '常量路由',
+        permission: '权限码',
+        component: '组件路径',
         form: {
           home: '请选择首页',
           menuType: '请选择菜单类型',
           menuName: '请输入菜单名称',
+          parentId: '请选择父菜单',
+          component: '请输入组件路径',
+          permission: '请输入权限码',
           routeName: '请输入路由名称',
           routePath: '请输入路由路径',
           pathParam: '请输入路径参数',
@@ -402,7 +408,8 @@ const local: App.I18n.Schema = {
         addChildMenu: '新增子菜单',
         type: {
           directory: '目录',
-          menu: '菜单'
+          menu: '菜单',
+          button: '按钮'
         },
         iconType: {
           iconify: 'iconify图标',

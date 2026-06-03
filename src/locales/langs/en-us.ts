@@ -332,7 +332,8 @@ const local: App.I18n.Schema = {
           userPhone: 'Please enter phone number',
           userEmail: 'Please enter email',
           userStatus: 'Please select user status',
-          userRole: 'Please select user role'
+          userRole: 'Please select user role',
+          password: 'Password'
         },
         addUser: 'Add User',
         editUser: 'Edit User',
@@ -370,10 +371,15 @@ const local: App.I18n.Schema = {
         buttonCode: 'Button Code',
         buttonDesc: 'Button Desc',
         menuStatus: 'Menu Status',
+        permission: 'Permission',
+        component: 'Component',
         form: {
           home: 'Please select home',
           menuType: 'Please select menu type',
           menuName: 'Please enter menu name',
+          parentId: 'Please select parent menu',
+          component: 'Please enter component path',
+          permission: 'Please enter permission code',
           routeName: 'Please enter route name',
           routePath: 'Please enter route path',
           pathParam: 'Please enter path param',
@@ -402,7 +408,8 @@ const local: App.I18n.Schema = {
         addChildMenu: 'Add Child Menu',
         type: {
           directory: 'Directory',
-          menu: 'Menu'
+          menu: 'Menu',
+          button: 'Button'
         },
         iconType: {
           iconify: 'Iconify Icon',

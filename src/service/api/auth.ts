@@ -16,7 +16,7 @@ export function fetchLogin(username: string, password: string) {
 
 /** 登出 */
 export function fetchLogout() {
-  return request<void>({
+  return request<null>({
     url: '/api/v1/base/auth/logout',
     method: 'post'
   });

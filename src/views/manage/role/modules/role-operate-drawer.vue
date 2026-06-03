@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useBoolean } from '@sa/hooks';
+import { enableStatusOptions } from '@/constants/business';
+import { fetchCreateRole, fetchUpdateRole } from '@/service/api';
 import { useAntdForm, useFormRules } from '@/hooks/common/form';
 import { $t } from '@/locales';
-import { enableStatusOptions } from '@/constants/business';
 import MenuAuthModal from './menu-auth-modal.vue';
-import ButtonAuthModal from './button-auth-modal.vue';
 
 defineOptions({
   name: 'RoleOperateDrawer'
@@ -33,7 +33,6 @@ const visible = defineModel<boolean>('visible', {
 const { formRef, validate, resetFields } = useAntdForm();
 const { defaultRequiredRule } = useFormRules();
 const { bool: menuAuthVisible, setTrue: openMenuAuthModal } = useBoolean();
-const { bool: buttonAuthVisible, setTrue: openButtonAuthModal } = useBoolean();
 
 const title = computed(() => {
   const titles: Record<AntDesign.TableOperateType, string> = {
@@ -43,24 +42,24 @@ const title = computed(() => {
   return titles[props.operateType];
 });
 
-type Model = Pick<Api.SystemManage.Role, 'roleName' | 'roleCode' | 'roleDesc' | 'status'>;
+type Model = Pick<Api.SystemManage.Role, 'name' | 'code' | 'description' | 'status'>;
 
 const model = ref(createDefaultModel());
 
 function createDefaultModel(): Model {
   return {
-    roleName: '',
-    roleCode: '',
-    roleDesc: '',
-    status: '1'
+    name: '',
+    code: '',
+    description: '',
+    status: 1
   };
 }
 
-type RuleKey = Exclude<keyof Model, 'roleDesc'>;
+type RuleKey = Exclude<keyof Model, 'description'>;
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  roleName: defaultRequiredRule,
-  roleCode: defaultRequiredRule,
+  name: defaultRequiredRule,
+  code: defaultRequiredRule,
   status: defaultRequiredRule
 };
 
@@ -82,7 +81,13 @@ function closeDrawer() {
 
 async function handleSubmit() {
   await validate();
-  // request
+
+  if (props.operateType === 'add') {
+    await fetchCreateRole(model.value);
+  } else if (props.operateType === 'edit' && props.rowData) {
+    await fetchUpdateRole(props.rowData.id, model.value);
+  }
+
   window.$message?.success($t('common.updateSuccess'));
   closeDrawer();
   emit('submitted');
@@ -99,11 +104,11 @@ watch(visible, () => {
 <template>
   <ADrawer v-model:open="visible" :title="title" :width="360">
     <AForm ref="formRef" layout="vertical" :model="model" :rules="rules">
-      <AFormItem :label="$t('page.manage.role.roleName')" name="roleName">
-        <AInput v-model:value="model.roleName" :placeholder="$t('page.manage.role.form.roleName')" />
+      <AFormItem :label="$t('page.manage.role.roleName')" name="name">
+        <AInput v-model:value="model.name" :placeholder="$t('page.manage.role.form.roleName')" />
       </AFormItem>
-      <AFormItem :label="$t('page.manage.role.roleCode')" name="roleCode">
-        <AInput v-model:value="model.roleCode" :placeholder="$t('page.manage.role.form.roleCode')" />
+      <AFormItem :label="$t('page.manage.role.roleCode')" name="code">
+        <AInput v-model:value="model.code" :placeholder="$t('page.manage.role.form.roleCode')" />
       </AFormItem>
       <AFormItem :label="$t('page.manage.role.roleStatus')" name="status">
         <ARadioGroup v-model:value="model.status">
@@ -112,15 +117,13 @@ watch(visible, () => {
           </ARadio>
         </ARadioGroup>
       </AFormItem>
-      <AFormItem :label="$t('page.manage.role.roleDesc')" name="roleDesc">
-        <AInput v-model:value="model.roleDesc" :placeholder="$t('page.manage.role.form.roleDesc')" />
+      <AFormItem :label="$t('page.manage.role.roleDesc')" name="description">
+        <AInput v-model:value="model.description" :placeholder="$t('page.manage.role.form.roleDesc')" />
       </AFormItem>
     </AForm>
     <ASpace v-if="isEdit">
       <AButton @click="openMenuAuthModal">{{ $t('page.manage.role.menuAuth') }}</AButton>
       <MenuAuthModal v-model:visible="menuAuthVisible" :role-id="roleId" />
-      <AButton @click="openButtonAuthModal">{{ $t('page.manage.role.buttonAuth') }}</AButton>
-      <ButtonAuthModal v-model:visible="buttonAuthVisible" :role-id="roleId" />
     </ASpace>
     <template #footer>
       <div class="flex-y-center justify-end gap-12px">

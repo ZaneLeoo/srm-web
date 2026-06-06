@@ -25,9 +25,7 @@ const {
     current: 1,
     size: 10,
     status: undefined,
-    username: undefined,
-    nickname: undefined,
-    phone: undefined
+    keyword: undefined
   },
   columns: () => [
     {

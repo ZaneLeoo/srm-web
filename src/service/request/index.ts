@@ -1,4 +1,4 @@
-import type { AxiosResponse } from 'axios';
+import type { AxiosError, AxiosResponse } from 'axios';
 import { BACKEND_ERROR_CODE, createFlatRequest, createRequest } from '@sa/axios';
 import { useAuthStore } from '@/store/modules/auth';
 import { localStg } from '@/utils/storage';
@@ -41,7 +41,7 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
         handleLogout();
         window.removeEventListener('beforeunload', handleLogout);
 
-        request.state.errMsgStack = request.state.errMsgStack.filter(msg => msg !== response.data.msg);
+        request.state.errMsgStack = request.state.errMsgStack.filter(msg => msg !== response.data.message);
       }
 
       // when the backend response code is in `logoutCodes`, it means the user will be logged out and redirected to login page
@@ -54,14 +54,14 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
       // when the backend response code is in `modalLogoutCodes`, it means the user will be logged out by displaying a modal
       const modalLogoutCodes = import.meta.env.VITE_SERVICE_MODAL_LOGOUT_CODES?.split(',') || [];
       if (modalLogoutCodes.includes(responseCode) && !request.state.errMsgStack?.includes(responseCode)) {
-        request.state.errMsgStack = [...(request.state.errMsgStack || []), response.data.msg];
+        request.state.errMsgStack = [...(request.state.errMsgStack || []), response.data.message];
 
         // prevent the user from refreshing the page
         window.addEventListener('beforeunload', handleLogout);
 
         window.$modal?.error({
           title: $t('common.error'),
-          content: response.data.msg,
+          content: response.data.message,
           okText: $t('common.confirm'),
           maskClosable: false,
           onOk() {
@@ -96,13 +96,23 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
     onError(error) {
       // when the request is fail, you can show error message
 
+      // Handle 401/403 — user not authenticated, redirect to login
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        const authStore = useAuthStore();
+        authStore.resetStore();
+        return;
+      }
+
       let message = error.message;
       let backendErrorCode = '';
 
       // get backend error message and code
       if (error.code === BACKEND_ERROR_CODE) {
-        message = error.response?.data?.msg || message;
+        message = error.response?.data?.message || message;
         backendErrorCode = String(error.response?.data?.code) || '';
+      } else {
+        // Translate Axios native error messages to Chinese
+        message = translateAxiosError(error);
       }
 
       // the error message is displayed in the modal
@@ -163,3 +173,24 @@ export const demoRequest = createRequest<App.Service.DemoResponse>(
     }
   }
 );
+
+/**
+ * Translate Axios native error messages to Chinese.
+ * These errors occur when there's no HTTP response from the server
+ * (network down, timeout, CORS, etc.), so there's no backend message to display.
+ */
+function translateAxiosError(error: AxiosError): string {
+  const { code } = error;
+
+  if (code === 'ERR_NETWORK') {
+    return '网络连接失败，请检查网络后重试';
+  }
+  if (code === 'ECONNABORTED') {
+    return '请求超时，请稍后重试';
+  }
+  if (code === 'ERR_CANCELED') {
+    return '请求已取消';
+  }
+
+  return error.message || '未知网络错误';
+}

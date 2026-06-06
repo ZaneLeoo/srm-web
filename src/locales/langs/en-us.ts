@@ -1,6 +1,6 @@
 const local: App.I18n.Schema = {
   system: {
-    title: 'SoybeanAdmin',
+    title: 'SRM Platform',
     updateTitle: 'System Version Update Notification',
     updateContent: 'A new version of the system has been detected. Do you want to refresh the page immediately?',
     updateConfirm: 'Refresh immediately',
@@ -319,6 +319,7 @@ const local: App.I18n.Schema = {
       user: {
         title: 'User List',
         userName: 'User Name',
+        keyword: 'Keyword',
         userGender: 'Gender',
         nickName: 'Nick Name',
         userPhone: 'Phone Number',
@@ -326,6 +327,7 @@ const local: App.I18n.Schema = {
         userStatus: 'User Status',
         userRole: 'User Role',
         form: {
+          keyword: 'Enter username/nickname to search',
           userName: 'Please enter user name',
           userGender: 'Please select gender',
           nickName: 'Please enter nick name',

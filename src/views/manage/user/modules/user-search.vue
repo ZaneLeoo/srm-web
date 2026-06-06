@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import { enableStatusOptions } from '@/constants/business';
-import { useAntdForm, useFormRules } from '@/hooks/common/form';
+import { useAntdForm } from '@/hooks/common/form';
 import { translateOptions } from '@/utils/common';
 import { $t } from '@/locales';
 
@@ -20,16 +19,6 @@ const { formRef, validate, resetFields } = useAntdForm();
 
 const model = defineModel<Api.SystemManage.UserSearchParams>('model', { required: true });
 
-type RuleKey = Extract<keyof Api.SystemManage.UserSearchParams, 'phone'>;
-
-const rules = computed<Record<RuleKey, App.Global.FormRule>>(() => {
-  const { patternRules } = useFormRules(); // inside computed to make locale reactive
-
-  return {
-    phone: patternRules.phone
-  };
-});
-
 async function reset() {
   await resetFields();
   emit('reset');
@@ -46,7 +35,6 @@ async function search() {
     <AForm
       ref="formRef"
       :model="model"
-      :rules="rules"
       :label-col="{
         span: 5,
         md: 7
@@ -54,18 +42,8 @@ async function search() {
     >
       <ARow :gutter="[16, 16]" wrap>
         <ACol :span="24" :md="12" :lg="6">
-          <AFormItem :label="$t('page.manage.user.userName')" name="username" class="m-0">
-            <AInput v-model:value="model.username" :placeholder="$t('page.manage.user.form.userName')" />
-          </AFormItem>
-        </ACol>
-        <ACol :span="24" :md="12" :lg="6">
-          <AFormItem :label="$t('page.manage.user.nickName')" name="nickname" class="m-0">
-            <AInput v-model:value="model.nickname" :placeholder="$t('page.manage.user.form.nickName')" />
-          </AFormItem>
-        </ACol>
-        <ACol :span="24" :md="12" :lg="6">
-          <AFormItem :label="$t('page.manage.user.userPhone')" name="phone" class="m-0">
-            <AInput v-model:value="model.phone" :placeholder="$t('page.manage.user.form.userPhone')" />
+          <AFormItem :label="$t('page.manage.user.keyword')" name="keyword" class="m-0">
+            <AInput v-model:value="model.keyword" :placeholder="$t('page.manage.user.form.keyword')" />
           </AFormItem>
         </ACol>
         <ACol :span="24" :md="12" :lg="6">

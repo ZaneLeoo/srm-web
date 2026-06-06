@@ -1,6 +1,6 @@
 const local: App.I18n.Schema = {
   system: {
-    title: 'Soybean 管理系统',
+    title: 'SRM Platform',
     updateTitle: '系统版本更新通知',
     updateContent: '检测到系统有新版本发布，是否立即刷新页面？',
     updateConfirm: '立即刷新',
@@ -319,6 +319,7 @@ const local: App.I18n.Schema = {
       user: {
         title: '用户列表',
         userName: '用户名',
+        keyword: '搜索关键词',
         userGender: '性别',
         nickName: '昵称',
         userPhone: '手机号',
@@ -326,6 +327,7 @@ const local: App.I18n.Schema = {
         userStatus: '用户状态',
         userRole: '用户角色',
         form: {
+          keyword: '请输入用户名/昵称搜索',
           userName: '请输入用户名',
           userGender: '请选择性别',
           nickName: '请输入昵称',

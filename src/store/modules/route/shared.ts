@@ -49,7 +49,7 @@ function filterAuthRouteByRoles(route: ElegantConstRoute, roles: string[]): Eleg
  */
 function sortRouteByOrder(route: ElegantConstRoute) {
   if (route.children?.length) {
-    route.children.sort((next, prev) => (Number(next.meta?.order) || 0) - (Number(prev.meta?.order) || 0));
+    route.children.sort((next, prev) => (Number(next.meta?.sort) || 0) - (Number(prev.meta?.sort) || 0));
     route.children.forEach(sortRouteByOrder);
   }
 
@@ -62,7 +62,7 @@ function sortRouteByOrder(route: ElegantConstRoute) {
  * @param routes routes
  */
 export function sortRoutesByOrder(routes: ElegantConstRoute[]) {
-  routes.sort((next, prev) => (Number(next.meta?.order) || 0) - (Number(prev.meta?.order) || 0));
+  routes.sort((next, prev) => (Number(next.meta?.sort) || 0) - (Number(prev.meta?.sort) || 0));
   routes.forEach(sortRouteByOrder);
 
   return routes;
@@ -131,7 +131,7 @@ function getGlobalMenuByBaseRoute(route: RouteLocationNormalizedLoaded | Elegant
   const { name, path } = route;
   const { title, i18nKey, icon = import.meta.env.VITE_MENU_ICON, localIcon, iconFontSize } = route.meta ?? {};
 
-  const label = i18nKey ? $t(i18nKey) : title!;
+  const label = i18nKey && $t(i18nKey) !== i18nKey ? $t(i18nKey) : title!;
 
   const menu: App.Global.Menu = {
     key: name as string,

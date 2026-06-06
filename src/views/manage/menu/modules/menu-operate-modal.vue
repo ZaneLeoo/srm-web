@@ -4,6 +4,7 @@ import { enableStatusOptions, menuTypeOptions } from '@/constants/business';
 import { fetchCreateMenu, fetchGetAllMenus, fetchUpdateMenu } from '@/service/api';
 import { useAntdForm, useFormRules } from '@/hooks/common/form';
 import { $t } from '@/locales';
+import IconPicker from '@/components/common/IconPicker.vue';
 
 defineOptions({
   name: 'MenuOperateModal'
@@ -157,7 +158,7 @@ watch(visible, () => {
         <AInput v-model:value="model.permission" :placeholder="$t('page.manage.menu.form.permission')" />
       </AFormItem>
       <AFormItem :label="$t('page.manage.menu.icon')" name="icon">
-        <AInput v-model:value="model.icon" :placeholder="$t('page.manage.menu.form.icon')" />
+        <IconPicker v-model="model.icon" />
       </AFormItem>
       <AFormItem :label="$t('page.manage.menu.order')" name="sort">
         <AInputNumber v-model:value="model.sort" class="w-full" :placeholder="$t('page.manage.menu.form.order')" />

@@ -98,11 +98,11 @@ async function handleSubmit() {
 
   if (props.operateType === 'add') {
     await fetchCreateUser({ ...userData, password });
+    window.$message?.success($t('common.addSuccess'));
   } else if (props.operateType === 'edit' && props.rowData) {
     await fetchUpdateUser(props.rowData.id, userData);
+    window.$message?.success($t('common.updateSuccess'));
   }
-
-  window.$message?.success($t('common.updateSuccess'));
   closeDrawer();
   emit('submitted');
 }
@@ -136,7 +136,7 @@ watch(visible, () => {
       </AFormItem>
       <AFormItem :label="$t('page.manage.user.userStatus')" name="status">
         <ARadioGroup v-model:value="model.status">
-          <ARadio v-for="item in enableStatusOptions" :key="item.value" :value="item.value">
+          <ARadio v-for="item in enableStatusOptions" :key="item.value" :value="Number(item.value)">
             {{ $t(item.label) }}
           </ARadio>
         </ARadioGroup>
@@ -144,7 +144,7 @@ watch(visible, () => {
       <AFormItem :label="$t('page.manage.user.userRole')" name="roleIds">
         <ASelect
           v-model:value="model.roleIds"
-          multiple
+          mode="multiple"
           :options="roleOptions"
           :placeholder="$t('page.manage.user.form.userRole')"
         />

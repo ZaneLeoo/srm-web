@@ -46,6 +46,8 @@ declare module 'vue-router' {
     iconFontSize?: number;
     /** Router order */
     order?: number | null;
+    /** Router sort */
+    sort?: number | null;
     /** The outer link of the route */
     href?: string | null;
     /** Whether to hide the route in the menu */

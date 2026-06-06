@@ -134,7 +134,7 @@ declare namespace Api {
 
     /** user search params */
     type UserSearchParams = Partial<
-      Pick<User, 'username' | 'nickname' | 'phone' | 'status'> & Common.CommonSearchParams
+      Pick<User, 'status'> & { keyword?: string } & Common.CommonSearchParams
     >;
 
     /** user list（分页） */
